@@ -158,8 +158,13 @@ export function AdminProducts() {
         closeModal()
         refetch()
       }, 500)
-    } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : 'Failed to save product')
+    } catch (err: any) {
+      const errorMsg = err?.message || 'Failed to save product'
+      if (errorMsg.includes('permission denied') || err?.status === 403) {
+        setSubmitError('Permission denied. Your role may not be set to admin in your profile.')
+      } else {
+        setSubmitError(errorMsg)
+      }
       console.error('Error saving product:', err)
     } finally {
       setUploading(false)

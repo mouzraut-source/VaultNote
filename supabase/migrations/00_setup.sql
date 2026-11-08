@@ -102,13 +102,13 @@ GRANT EXECUTE ON FUNCTION public.is_admin() TO authenticated;
 GRANT EXECUTE ON FUNCTION public.handle_new_user() TO authenticated;
 
 -- ==========================================
--- Grant basic SELECT permissions on tables
+-- Grant basic permissions on tables
 -- ==========================================
 
-GRANT SELECT ON public.profiles TO authenticated;
-GRANT SELECT ON public.products TO authenticated;
-GRANT SELECT ON public.purchases TO authenticated;
-GRANT SELECT ON public.payment_submissions TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.profiles TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.products TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.purchases TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.payment_submissions TO authenticated;
 
 -- ==========================================
 -- Profiles policies

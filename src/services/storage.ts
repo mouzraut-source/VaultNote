@@ -42,7 +42,7 @@ export async function uploadPaymentProof(
 
   const fileExt = file.name.split('.').pop() || 'jpg'
   const fileName = `${userId}/${Date.now()}.${fileExt}`
-  const path = `payment-proofs/${fileName}`
+  const path = fileName
 
   const { error } = await supabase.storage
     .from(STORAGE_BUCKETS.PAYMENT_PROOFS)

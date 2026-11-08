@@ -37,6 +37,7 @@ export function ProductPage() {
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [uploadProgress, setUploadProgress] = useState(0)
+  const [screenshotFile, setScreenshotFile] = useState<File | null>(null)
 
   const hasActivePurchase = purchases?.some(p => p.product_id === id && p.status === 'active')
   const pendingSubmission = submissions?.find(s => s.product_id === id && s.status === 'pending')
@@ -66,9 +67,9 @@ export function ProductPage() {
 
     try {
       let screenshotPath: string | null = null
-      if (data.screenshot) {
+      if (screenshotFile) {
         setUploadProgress(30)
-        screenshotPath = await uploadPaymentProof(user.id, data.screenshot)
+        screenshotPath = await uploadPaymentProof(user.id, screenshotFile)
         setUploadProgress(75)
       }
 
@@ -83,10 +84,12 @@ export function ProductPage() {
       setUploadProgress(100)
       setShowPaymentModal(false)
       setValue('transactionReference', '')
-      setValue('screenshot', null)
+      setScreenshotFile(null)
       navigate('/dashboard')
     } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : 'Failed to submit payment')
+      const message = err instanceof Error ? err.message : 'Failed to submit payment'
+      setSubmitError(message)
+      console.error('Payment submission error:', err)
     } finally {
       setSubmitting(false)
       setUploadProgress(0)
@@ -350,17 +353,32 @@ export function ProductPage() {
               Payment Screenshot (Optional - Helps with verification)
             </label>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
-              <Input
+              <input
                 type="file"
                 accept="image/jpeg,image/png,image/webp"
-                {...register('screenshot')}
                 className="absolute inset-0 opacity-0 cursor-pointer"
                 id="screenshot-upload"
+                onChange={(e) => {
+                  const file = e.target.files?.[0] ?? null
+                  setScreenshotFile(file)
+                  register('screenshot').onChange(e)
+                }}
+                onClick={(e) => e.stopPropagation()}
               />
-              <label htmlFor="screenshot-upload" className="cursor-pointer">
-                <Upload className="mx-auto h-10 w-10 text-gray-300 mb-2" />
-                <p className="text-sm text-gray-600">Click or drag to upload</p>
-                <p className="text-xs text-gray-400">JPG, PNG, WebP up to 5MB. Optional but recommended.</p>
+              <label htmlFor="screenshot-upload" className="cursor-pointer" onClick={(e) => e.stopPropagation()}>
+                {screenshotFile ? (
+                  <div className="flex flex-col items-center">
+                    <Upload className="mx-auto h-10 w-10 text-primary mb-2" />
+                    <p className="text-sm text-gray-600 font-medium">{screenshotFile.name}</p>
+                    <p className="text-xs text-gray-400">{(screenshotFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                  </div>
+                ) : (
+                  <div>
+                    <Upload className="mx-auto h-10 w-10 text-gray-300 mb-2" />
+                    <p className="text-sm text-gray-600">Click or drag to upload</p>
+                    <p className="text-xs text-gray-400">JPG, PNG, WebP up to 5MB. Optional but recommended.</p>
+                  </div>
+                )}
               </label>
             </div>
           </div>

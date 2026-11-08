@@ -166,6 +166,18 @@ DROP POLICY IF EXISTS "Admins can view all purchases" ON public.purchases;
 CREATE POLICY "Admins can view all purchases" ON public.purchases
     FOR SELECT TO authenticated USING (public.is_admin());
 
+DROP POLICY IF EXISTS "Admins can create purchases" ON public.purchases;
+CREATE POLICY "Admins can create purchases" ON public.purchases
+    FOR INSERT TO authenticated WITH CHECK (public.is_admin());
+
+DROP POLICY IF EXISTS "Admins can update purchases" ON public.purchases;
+CREATE POLICY "Admins can update purchases" ON public.purchases
+    FOR UPDATE TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
+
+DROP POLICY IF EXISTS "Admins can delete purchases" ON public.purchases;
+CREATE POLICY "Admins can delete purchases" ON public.purchases
+    FOR DELETE TO authenticated USING (public.is_admin());
+
 -- ==========================================
 -- Payment submissions policies
 -- ==========================================

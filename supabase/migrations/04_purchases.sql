@@ -15,16 +15,19 @@ ALTER TABLE public.purchases ENABLE ROW LEVEL SECURITY;
 
 -- Policies for purchases
 CREATE POLICY "Users can view own purchases" ON public.purchases
-    FOR SELECT USING (auth.uid() = user_id);
+    FOR SELECT TO authenticated USING (auth.uid() = user_id);
 
 CREATE POLICY "Admins can view all purchases" ON public.purchases
-    FOR SELECT USING (public.is_admin());
+    FOR SELECT TO authenticated USING (public.is_admin());
 
 CREATE POLICY "Admins can insert purchases" ON public.purchases
-    FOR INSERT WITH CHECK (public.is_admin());
+    FOR INSERT TO authenticated WITH CHECK (public.is_admin());
 
 CREATE POLICY "Admins can update purchases" ON public.purchases
-    FOR UPDATE USING (public.is_admin());
+    FOR UPDATE TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
+
+CREATE POLICY "Admins can delete purchases" ON public.purchases
+    FOR DELETE TO authenticated USING (public.is_admin());
 
 -- Unique constraint: prevent duplicate active purchases for same user/product
 CREATE UNIQUE INDEX idx_unique_active_purchase 

@@ -33,16 +33,16 @@ $$;
 
 -- Policies for profiles
 CREATE POLICY "Users can view own profile" ON public.profiles
-    FOR SELECT USING (auth.uid() = id);
+    FOR SELECT TO authenticated USING (auth.uid() = id);
 
 CREATE POLICY "Users can update own profile" ON public.profiles
-    FOR UPDATE USING (auth.uid() = id);
+    FOR UPDATE TO authenticated USING (auth.uid() = id);
 
 CREATE POLICY "Admins can view all profiles" ON public.profiles
-    FOR SELECT USING (public.is_admin());
+    FOR SELECT TO authenticated USING (public.is_admin());
 
 CREATE POLICY "Admins can update all profiles" ON public.profiles
-    FOR UPDATE USING (public.is_admin());
+    FOR UPDATE TO authenticated USING (public.is_admin());
 
 -- Function to create profile on signup
 CREATE OR REPLACE FUNCTION public.handle_new_user()

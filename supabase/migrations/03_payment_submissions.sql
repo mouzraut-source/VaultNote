@@ -19,16 +19,19 @@ ALTER TABLE public.payment_submissions ENABLE ROW LEVEL SECURITY;
 
 -- Policies for payment_submissions
 CREATE POLICY "Users can view own submissions" ON public.payment_submissions
-    FOR SELECT USING (auth.uid() = user_id);
+    FOR SELECT TO authenticated USING (auth.uid() = user_id);
 
 CREATE POLICY "Users can insert own submissions" ON public.payment_submissions
-    FOR INSERT WITH CHECK (auth.uid() = user_id);
+    FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own submissions" ON public.payment_submissions
+    FOR UPDATE TO authenticated USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
 CREATE POLICY "Admins can view all submissions" ON public.payment_submissions
-    FOR SELECT USING (public.is_admin());
+    FOR SELECT TO authenticated USING (public.is_admin());
 
 CREATE POLICY "Admins can update submissions" ON public.payment_submissions
-    FOR UPDATE USING (public.is_admin());
+    FOR UPDATE TO authenticated USING (public.is_admin());
 
 -- Indexes
 CREATE INDEX idx_payment_submissions_user_id ON public.payment_submissions(user_id);

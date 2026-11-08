@@ -120,7 +120,7 @@ export function Home() {
           ) : (
             <ProductGrid 
               products={products || []} 
-              showPurchaseButton={true}
+              showPurchaseButton={false}
               emptyMessage="No academic materials available at the moment."
             />
           )}

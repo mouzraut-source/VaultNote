@@ -154,7 +154,7 @@ export function Dashboard() {
                   <CardDescription>Track your payment verification status</CardDescription>
                 </div>
                 <Link to="/products">
-                  <Button variant="outline" size="sm">New Payment</Button>
+                  <Button variant="outline" size="sm">Browse Materials</Button>
                 </Link>
               </div>
             </CardHeader>

@@ -16,20 +16,24 @@ CREATE TABLE public.products (
 ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
 
 -- Policies for products
+-- SELECT: Anyone can view active products, admins can view all
 CREATE POLICY "Anyone can view active products" ON public.products
     FOR SELECT USING (is_active = TRUE);
 
 CREATE POLICY "Admins can view all products" ON public.products
-    FOR SELECT USING (public.is_admin());
+    FOR SELECT TO authenticated USING (public.is_admin());
 
+-- INSERT: Admins can create products
 CREATE POLICY "Admins can insert products" ON public.products
-    FOR INSERT WITH CHECK (public.is_admin());
+    FOR INSERT TO authenticated WITH CHECK (public.is_admin());
 
+-- UPDATE: Admins can update products (requires USING to SELECT first)
 CREATE POLICY "Admins can update products" ON public.products
-    FOR UPDATE USING (public.is_admin());
+    FOR UPDATE TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
 
+-- DELETE: Admins can delete products
 CREATE POLICY "Admins can delete products" ON public.products
-    FOR DELETE USING (public.is_admin());
+    FOR DELETE TO authenticated USING (public.is_admin());
 
 -- Indexes
 CREATE INDEX idx_products_is_active ON public.products(is_active);

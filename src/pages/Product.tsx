@@ -356,7 +356,7 @@ export function ProductPage() {
               <input
                 type="file"
                 accept="image/jpeg,image/png,image/webp"
-                className="absolute inset-0 opacity-0 cursor-pointer"
+                className="sr-only"
                 id="screenshot-upload"
                 onChange={(e) => {
                   const file = e.target.files?.[0] ?? null
@@ -365,7 +365,7 @@ export function ProductPage() {
                 }}
                 onClick={(e) => e.stopPropagation()}
               />
-              <label htmlFor="screenshot-upload" className="cursor-pointer" onClick={(e) => e.stopPropagation()}>
+              <label htmlFor="screenshot-upload" className="cursor-pointer block" onClick={(e) => e.stopPropagation()}>
                 {screenshotFile ? (
                   <div className="flex flex-col items-center">
                     <Upload className="mx-auto h-10 w-10 text-primary mb-2" />

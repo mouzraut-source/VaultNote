@@ -111,7 +111,7 @@ export function Dashboard() {
                   <BookOpen className="mx-auto h-12 w-12 text-gray-300" />
                   <h3 className="mt-2 text-lg font-medium text-gray-900">No purchased materials</h3>
                   <p className="mt-1 text-gray-500">Browse available materials and make a purchase</p>
-                  <Link to="/" className="mt-4 inline-block">
+                  <Link to="/products" className="mt-4 inline-block">
                     <Button>Browse Materials</Button>
                   </Link>
                 </div>
@@ -179,7 +179,7 @@ export function Dashboard() {
                   <CreditCard className="mx-auto h-12 w-12 text-gray-300" />
                   <h3 className="mt-2 text-lg font-medium text-gray-900">No payment submissions</h3>
                   <p className="mt-1 text-gray-500">Submit a payment reference to purchase materials</p>
-                  <Link to="/" className="mt-4 inline-block">
+                  <Link to="/products" className="mt-4 inline-block">
                     <Button>Browse Materials</Button>
                   </Link>
                 </div>

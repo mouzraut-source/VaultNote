@@ -34,14 +34,12 @@ export function AdminLayout() {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <motion.aside
+      <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 lg:translate-x-0',
+          'fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300',
+          'lg:translate-x-0',
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         )}
-        initial={{ x: -256 }}
-        animate={{ x: sidebarOpen ? 0 : -256 }}
-        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
         aria-label="Admin sidebar"
       >
         <div className="flex h-16 items-center justify-between px-6 border-b border-gray-100">
@@ -52,15 +50,13 @@ export function AdminLayout() {
             </svg>
             <span className="text-xl font-bold text-gray-900">VaultNote Admin</span>
           </Link>
-          <motion.button
+          <button
             className="lg:hidden p-2 text-gray-600 hover:text-gray-900 rounded-lg"
             onClick={() => setSidebarOpen(false)}
             aria-label="Close sidebar"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
           >
             <X className="h-6 w-6" />
-          </motion.button>
+          </button>
         </div>
 
         <nav className="flex-1 px-4 py-6 space-y-1" aria-label="Admin navigation">
@@ -116,19 +112,17 @@ export function AdminLayout() {
             Logout
           </Button>
         </motion.div>
-      </motion.aside>
+      </aside>
 
       <div className="lg:pl-64 flex-1">
         <div className="lg:hidden p-4 border-b border-gray-200 bg-white">
-          <motion.button
+          <button
             className="p-2 text-gray-600 hover:text-gray-900 rounded-lg"
             onClick={() => setSidebarOpen(true)}
             aria-label="Open sidebar"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
           >
             <Menu className="h-6 w-6" />
-          </motion.button>
+          </button>
         </div>
 
         <main className="p-6 lg:p-8">

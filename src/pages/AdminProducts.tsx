@@ -315,9 +315,9 @@ export function AdminProducts() {
                 ref={fileInputRef}
                 id="pdf-upload"
                 accept="application/pdf"
-                className="absolute inset-0 opacity-0 cursor-pointer"
+                className="sr-only"
               />
-              <label htmlFor="pdf-upload" className="cursor-pointer">
+              <label htmlFor="pdf-upload" className="cursor-pointer block">
                 <Upload className="mx-auto h-10 w-10 text-gray-300 mb-2" />
                 <p className="text-sm text-gray-600">Click or drag PDF to upload</p>
                 <p className="text-xs text-gray-400">Max 50MB</p>

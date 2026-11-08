@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { Link, Navigate, useNavigate, useLocation, type Location } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react'
@@ -11,12 +11,22 @@ import { Card } from '@/components/Card'
 import { motion } from 'framer-motion'
 
 export function Login() {
-  const { signIn, refreshProfile } = useAuth()
+  const { signIn, refreshProfile, user, loading } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [formLoading, setFormLoading] = useState(false)
+
+  if (loading) {
+    return null
+  }
+
+  if (user) {
+    const from = (location.state as { from?: Location })?.from?.pathname
+    const redirectPath = from || '/dashboard'
+    return <Navigate to={redirectPath} replace />
+  }
 
   const from = (location.state as { from?: Location })?.from?.pathname
 
@@ -34,9 +44,9 @@ export function Login() {
 
   const onSubmit = async (data: LoginInput) => {
     setError(null)
-    setLoading(true)
+    setFormLoading(true)
     const { error } = await signIn(data.email, data.password)
-    setLoading(false)
+    setFormLoading(false)
     if (error) {
       setError(error.message)
     } else {
@@ -146,7 +156,7 @@ export function Login() {
               </Link>
             </div>
 
-            <Button type="submit" className="w-full" loading={loading}>
+            <Button type="submit" className="w-full" loading={formLoading}>
               Sign in
             </Button>
           </form>

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Mail, Lock, User, Eye, EyeOff } from 'lucide-react'
@@ -8,12 +8,21 @@ import { registerSchema, type RegisterInput } from '@/utils/validation'
 import { Button } from '@/components/Button'
 
 export function Register() {
-  const { signUp, refreshProfile } = useAuth()
+  const { signUp, refreshProfile, user, loading } = useAuth()
   const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [formLoading, setFormLoading] = useState(false)
+
+  if (loading) {
+    return null
+  }
+
+  if (user) {
+    const redirectPath = '/dashboard'
+    return <Navigate to={redirectPath} replace />
+  }
 
   const {
     register,
@@ -33,9 +42,9 @@ export function Register() {
 
   const onSubmit = async (data: RegisterInput) => {
     setError(null)
-    setLoading(true)
+    setFormLoading(true)
     const { error } = await signUp(data.email, data.password, data.fullName)
-    setLoading(false)
+    setFormLoading(false)
     if (error) {
       setError(error.message)
     } else {
@@ -218,7 +227,7 @@ export function Register() {
               )}
             </div>
 
-            <Button type="submit" className="w-full" loading={loading}>
+            <Button type="submit" className="w-full" loading={formLoading}>
               Create Account
             </Button>
           </form>

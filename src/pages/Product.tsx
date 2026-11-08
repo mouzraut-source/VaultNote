@@ -322,15 +322,15 @@ export function ProductPage() {
           )}
 
           <Input
-            label="Transaction Reference (UTR)"
+            label="Transaction Reference / UTR Number"
             placeholder="e.g., 123456789012"
             error={errors.transactionReference?.message}
             {...register('transactionReference')}
-            helperText="Enter the UTR/transaction ID from your bank app"
+            helperText="Find this in your bank app (UPI transaction ID, IMPS ref, NEFT UTR, etc.)"
           />
 
           <Input
-            label="Amount Paid"
+            label="Amount Paid (₹)"
             type="number"
             step="1"
             min="1"
@@ -341,13 +341,12 @@ export function ProductPage() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              Payment Screenshot (Optional)
+              Payment Screenshot (Optional - Helps with verification)
             </label>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
               <Input
                 type="file"
                 accept="image/jpeg,image/png,image/webp"
-                error={errors.screenshot?.message}
                 {...register('screenshot')}
                 className="absolute inset-0 opacity-0 cursor-pointer"
                 id="screenshot-upload"
@@ -355,7 +354,7 @@ export function ProductPage() {
               <label htmlFor="screenshot-upload" className="cursor-pointer">
                 <Upload className="mx-auto h-10 w-10 text-gray-300 mb-2" />
                 <p className="text-sm text-gray-600">Click or drag to upload</p>
-                <p className="text-xs text-gray-400">JPG, PNG, WebP up to 5MB</p>
+                <p className="text-xs text-gray-400">JPG, PNG, WebP up to 5MB. Optional but recommended.</p>
               </label>
             </div>
           </div>

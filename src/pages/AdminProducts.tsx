@@ -31,6 +31,7 @@ export function AdminProducts() {
   const [uploadProgress, setUploadProgress] = useState(0)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [fileInputKey, setFileInputKey] = useState(0)
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   const isEditMode = !!editingProduct
 
@@ -54,6 +55,7 @@ export function AdminProducts() {
     setEditingProduct(null)
     setSelectedFile(null)
     setFileInputKey(Date.now())
+    setSubmitError(null)
     reset({
       title: '',
       description: '',
@@ -68,6 +70,7 @@ export function AdminProducts() {
     setEditingProduct(product)
     setSelectedFile(null)
     setFileInputKey(Date.now())
+    setSubmitError(null)
     reset({
       title: product.title,
       description: product.description || '',
@@ -79,6 +82,7 @@ export function AdminProducts() {
   }
 
   const closeModal = () => {
+    setSubmitError(null)
     setShowModal(false)
     setEditingProduct(null)
     setSelectedFile(null)
@@ -127,21 +131,26 @@ export function AdminProducts() {
         setUploadProgress(40)
 
         if (selectedFile && newProduct?.id) {
-          storagePath = await uploadAcademicMaterial(newProduct.id, selectedFile)
-          setUploadProgress(75)
+          try {
+            storagePath = await uploadAcademicMaterial(newProduct.id, selectedFile)
+            setUploadProgress(75)
 
-          await updateProduct.mutateAsync({
-            id: newProduct.id,
-            input: { 
-              title: data.title,
-              description: data.description ?? null,
-              subject: data.subject ?? null,
-              price: data.price,
-              storage_path: storagePath,
-              is_active: data.isActive,
-            },
-          })
-          setUploadProgress(100)
+            await updateProduct.mutateAsync({
+              id: newProduct.id,
+              input: { 
+                title: data.title,
+                description: data.description ?? null,
+                subject: data.subject ?? null,
+                price: data.price,
+                storage_path: storagePath,
+                is_active: data.isActive,
+              },
+            })
+            setUploadProgress(100)
+          } catch (uploadErr) {
+            console.error('Upload failed:', uploadErr)
+            throw uploadErr
+          }
         }
       }
 
@@ -150,6 +159,7 @@ export function AdminProducts() {
         refetch()
       }, 500)
     } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : 'Failed to save product')
       console.error('Error saving product:', err)
     } finally {
       setUploading(false)
@@ -373,6 +383,12 @@ export function AdminProducts() {
               </label>
             </div>
           </div>
+
+          {submitError && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+              {submitError}
+            </div>
+          )}
 
           {uploading && (
             <div className="mb-4">

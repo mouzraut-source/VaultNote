@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useAdminProducts } from '@/hooks/useProducts'
 import { useCreateProduct, useUpdateProduct, useDeleteProduct } from '@/hooks/useProducts'
 import { uploadAcademicMaterial } from '@/services/storage'
@@ -13,6 +13,7 @@ import { cn } from '@/utils/format'
 import { productSchema, type ProductInput } from '@/utils/validation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+
 import type { Product } from '@/types'
 
 type AdminProductFormData = ProductInput & { isActive: boolean }
@@ -35,8 +36,6 @@ export function AdminProducts() {
     register,
     handleSubmit,
     reset,
-    setValue,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm<AdminProductFormData>({
     resolver: zodResolver(productSchema) as any,
@@ -46,11 +45,10 @@ export function AdminProducts() {
       subject: '',
       price: 0,
       isActive: true,
-      pdfFile: undefined,
     },
   })
 
-  const pdfFile = watch('pdfFile')
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const openCreateModal = () => {
     setEditingProduct(null)
@@ -87,17 +85,18 @@ export function AdminProducts() {
     setUploadProgress(0)
 
     try {
-      let storagePath: string | undefined
-      const fileInput = document.getElementById('pdf-upload') as HTMLInputElement | null
-      const file = fileInput?.files?.[0]
+      let storagePath: string | undefined = editingProduct?.storage_path ?? undefined
+      const file = fileInputRef.current?.files?.[0]
 
-      if (file) {
+      if (file && (isEditMode || file)) {
         storagePath = await uploadAcademicMaterial(
           editingProduct?.id || `temp-${Date.now()}`,
           file
         )
-      } else if (isEditMode && !file) {
-        storagePath = editingProduct.storage_path || undefined
+      } else if (!file && isEditMode) {
+        storagePath = editingProduct?.storage_path ?? undefined
+      } else if (!file && !isEditMode) {
+        throw new Error('PDF file is required')
       }
 
       if (isEditMode && editingProduct) {
@@ -110,6 +109,7 @@ export function AdminProducts() {
       }
 
       closeModal()
+      if (fileInputRef.current) fileInputRef.current.value = ''
       refetch()
     } catch (err) {
       console.error('Error saving product:', err)
@@ -312,10 +312,10 @@ export function AdminProducts() {
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
               <input
                 type="file"
+                ref={fileInputRef}
                 id="pdf-upload"
                 accept="application/pdf"
                 className="absolute inset-0 opacity-0 cursor-pointer"
-                onChange={(e) => setValue('pdfFile', e.target.files?.[0])}
               />
               <label htmlFor="pdf-upload" className="cursor-pointer">
                 <Upload className="mx-auto h-10 w-10 text-gray-300 mb-2" />
@@ -323,10 +323,7 @@ export function AdminProducts() {
                 <p className="text-xs text-gray-400">Max 50MB</p>
               </label>
             </div>
-            {errors.pdfFile && (
-              <p className="mt-1.5 text-sm text-danger" role="alert">{errors.pdfFile.message}</p>
-            )}
-          </div>
+            </div>
 
           <div className="flex gap-3 pt-4 border-t border-gray-100">
             <Button type="button" variant="outline" className="flex-1" onClick={closeModal} disabled={isSubmitting || uploading}>

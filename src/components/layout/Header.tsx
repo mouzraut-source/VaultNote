@@ -11,8 +11,7 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const navLinks = [
-    { href: '/', label: 'Home', icon: BookOpen },
-    ...(user ? [{ href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard }] : []),
+    ...(user ? [{ href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard }] : [{ href: '/', label: 'Home', icon: BookOpen }]),
     ...(isAdmin ? [{ href: '/admin', label: 'Admin', icon: Shield }] : []),
   ]
 

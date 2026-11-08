@@ -23,7 +23,6 @@ export const productSchema = z.object({
   subject: z.string().max(100).optional(),
   price: z.number().min(0, 'Price cannot be negative'),
   isActive: z.boolean().default(true),
-  pdfFile: z.instanceof(File).optional(),
 })
 
 export const paymentSubmissionSchema = z.object({

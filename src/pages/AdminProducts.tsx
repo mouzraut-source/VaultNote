@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { useAdminProducts } from '@/hooks/useProducts'
 import { useCreateProduct, useUpdateProduct, useDeleteProduct } from '@/hooks/useProducts'
 import { uploadAcademicMaterial } from '@/services/storage'
@@ -29,6 +29,7 @@ export function AdminProducts() {
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null)
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
   const isEditMode = !!editingProduct
 
@@ -48,10 +49,11 @@ export function AdminProducts() {
     },
   })
 
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const fileInputKey = 'file-input-' + Date.now()
 
   const openCreateModal = () => {
     setEditingProduct(null)
+    setSelectedFile(null)
     reset({
       title: '',
       description: '',
@@ -64,6 +66,7 @@ export function AdminProducts() {
 
   const openEditModal = (product: Product) => {
     setEditingProduct(product)
+    setSelectedFile(null)
     reset({
       title: product.title,
       description: product.description || '',
@@ -77,40 +80,59 @@ export function AdminProducts() {
   const closeModal = () => {
     setShowModal(false)
     setEditingProduct(null)
+    setSelectedFile(null)
     reset()
   }
 
   const onSubmit = async (data: AdminProductFormData) => {
+    if (!isEditMode && !selectedFile) {
+      return
+    }
+
     setUploading(true)
     setUploadProgress(0)
 
     try {
-      let storagePath: string | undefined = editingProduct?.storage_path ?? undefined
-      const file = fileInputRef.current?.files?.[0]
+      let storagePath: string | null = editingProduct?.storage_path ?? null
 
-      if (file && (isEditMode || file)) {
-        storagePath = await uploadAcademicMaterial(
-          editingProduct?.id || `temp-${Date.now()}`,
-          file
-        )
-      } else if (!file && isEditMode) {
-        storagePath = editingProduct?.storage_path ?? undefined
-      } else if (!file && !isEditMode) {
-        throw new Error('PDF file is required')
-      }
-
-      if (isEditMode && editingProduct) {
+      if (isEditMode) {
+        if (selectedFile) {
+          setUploadProgress(30)
+          storagePath = await uploadAcademicMaterial(editingProduct!.id, selectedFile)
+          setUploadProgress(60)
+        }
         await updateProduct.mutateAsync({
-          id: editingProduct.id,
-          input: { ...data, storage_path: storagePath },
+          id: editingProduct!.id,
+          input: { ...data, storage_path: storagePath || undefined },
         })
+        setUploadProgress(100)
       } else {
-        await createProduct.mutateAsync({ ...data, storage_path: storagePath })
+        const newProduct = await createProduct.mutateAsync({
+          ...data,
+          storage_path: null,
+        })
+
+        setUploadProgress(40)
+
+        if (selectedFile && newProduct?.id) {
+          storagePath = await uploadAcademicMaterial(
+            `${data.title}-${Date.now()}`,
+            selectedFile
+          )
+          setUploadProgress(70)
+
+          await updateProduct.mutateAsync({
+            id: newProduct.id,
+            input: { ...data, storage_path: storagePath, is_active: data.isActive },
+          })
+          setUploadProgress(100)
+        }
       }
 
-      closeModal()
-      if (fileInputRef.current) fileInputRef.current.value = ''
-      refetch()
+      setTimeout(() => {
+        closeModal()
+        refetch()
+      }, 500)
     } catch (err) {
       console.error('Error saving product:', err)
     } finally {
@@ -128,7 +150,6 @@ export function AdminProducts() {
     try {
       await deleteProduct.mutateAsync(deletingProduct.id)
       if (deletingProduct.storage_path) {
-        // Note: In production, you'd want to delete the file from storage too
       }
       refetch()
     } catch (err) {
@@ -312,18 +333,44 @@ export function AdminProducts() {
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
               <input
                 type="file"
-                ref={fileInputRef}
+                key={fileInputKey}
                 id="pdf-upload"
                 accept="application/pdf"
                 className="sr-only"
+                onChange={(e) => setSelectedFile(e.target.files?.[0] ?? null)}
+                onClick={(e) => e.stopPropagation()}
               />
-              <label htmlFor="pdf-upload" className="cursor-pointer block">
-                <Upload className="mx-auto h-10 w-10 text-gray-300 mb-2" />
-                <p className="text-sm text-gray-600">Click or drag PDF to upload</p>
-                <p className="text-xs text-gray-400">Max 50MB</p>
+              <label htmlFor="pdf-upload" className="cursor-pointer block" onClick={(e) => e.stopPropagation()}>
+                {selectedFile ? (
+                  <div className="flex flex-col items-center">
+                    <Upload className="mx-auto h-10 w-10 text-primary mb-2" />
+                    <p className="text-sm text-gray-600 font-medium">{selectedFile.name}</p>
+                    <p className="text-xs text-gray-400">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                  </div>
+                ) : (
+                  <div>
+                    <Upload className="mx-auto h-10 w-10 text-gray-300 mb-2" />
+                    <p className="text-sm text-gray-600">Click or drag PDF to upload</p>
+                    <p className="text-xs text-gray-400">Max 50MB</p>
+                  </div>
+                )}
               </label>
             </div>
+          </div>
+
+          {uploading && (
+            <div className="mb-4">
+              <div className="w-full bg-gray-200 rounded-full h-2.5">
+                <div 
+                  className="bg-primary h-2.5 rounded-full transition-all duration-300" 
+                  style={{ width: `${uploadProgress}%` }}
+                ></div>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                {uploadProgress === 100 ? 'Completing...' : 'Uploading...'}
+              </p>
             </div>
+          )}
 
           <div className="flex gap-3 pt-4 border-t border-gray-100">
             <Button type="button" variant="outline" className="flex-1" onClick={closeModal} disabled={isSubmitting || uploading}>

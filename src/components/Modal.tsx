@@ -58,6 +58,7 @@ export function Modal({
                 animate="visible"
                 exit="exit"
                 variants={modalContent}
+                onClick={(e) => e.stopPropagation()}
               >
                 {(title || description) && (
                   <div className="flex items-start justify-between p-6 border-b border-gray-100">

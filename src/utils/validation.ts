@@ -10,6 +10,8 @@ export const registerSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   confirmPassword: z.string(),
+  acceptTerms: z.boolean().refine((val) => val === true, 'You must accept the Terms of Service'),
+  acceptPrivacy: z.boolean().refine((val) => val === true, 'You must accept the Privacy Policy'),
 }).refine((data) => data.password === data.confirmPassword, {
   message: 'Passwords do not match',
   path: ['confirmPassword'],

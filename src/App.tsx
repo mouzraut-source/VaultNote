@@ -15,6 +15,8 @@ import { AdminProducts } from '@/pages/AdminProducts'
 import { AdminPayments } from '@/pages/AdminPayments'
 import { AdminStudents } from '@/pages/AdminStudents'
 import { AdminPurchases } from '@/pages/AdminPurchases'
+import { PrivacyPolicy } from '@/pages/PrivacyPolicy'
+import { TermsOfService } from '@/pages/TermsOfService'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -34,6 +36,8 @@ function AppRoutes() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/products/:id" element={<ProductPage />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsOfService />} />
         
         <Route element={<ProtectedRoute allowedRoles={['student', 'admin']} />}>
           <Route path="/dashboard" element={<Dashboard />} />

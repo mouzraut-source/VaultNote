@@ -1,13 +1,17 @@
 import { forwardRef, type HTMLAttributes } from 'react'
+import { motion } from 'framer-motion'
 import { cn } from '@/utils/format'
+import { fadeInUp } from '@/components/ui/MotionComponents'
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
   variant?: 'default' | 'outlined' | 'elevated'
   padding?: 'none' | 'sm' | 'md' | 'lg'
+  animate?: boolean
+  hoverable?: boolean
 }
 
 export const Card = forwardRef<HTMLDivElement, CardProps>(
-  ({ className, variant = 'default', padding = 'md', children, ...props }, ref) => {
+  ({ className, variant = 'default', padding = 'md', children, animate = true, hoverable = false, ...props }, ref) => {
     const variants = {
       default: 'bg-white border border-gray-200',
       outlined: 'bg-white border-2 border-gray-200',
@@ -21,14 +25,20 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
       lg: 'p-8',
     }
 
+    const { onAnimationStart, onAnimationEnd, onDragStart, onDragEnd, onDrag, ...restProps } = props
+
     return (
-      <div
+      <motion.div
         ref={ref}
-        className={cn('rounded-xl', variants[variant], paddings[padding], className)}
-        {...props}
+        className={cn('rounded-xl', variants[variant], paddings[padding], className, hoverable ? 'transition-shadow duration-300 hover:shadow-xl' : '')}
+        initial={animate ? 'hidden' : 'visible'}
+        animate={animate ? 'visible' : undefined}
+        variants={fadeInUp}
+        transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+        {...restProps}
       >
         {children}
-      </div>
+      </motion.div>
     )
   }
 )

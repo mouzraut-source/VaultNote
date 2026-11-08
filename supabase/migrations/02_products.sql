@@ -20,36 +20,16 @@ CREATE POLICY "Anyone can view active products" ON public.products
     FOR SELECT USING (is_active = TRUE);
 
 CREATE POLICY "Admins can view all products" ON public.products
-    FOR SELECT USING (
-        EXISTS (
-            SELECT 1 FROM public.profiles 
-            WHERE id = auth.uid() AND role = 'admin'
-        )
-    );
+    FOR SELECT USING (public.is_admin());
 
 CREATE POLICY "Admins can insert products" ON public.products
-    FOR INSERT WITH CHECK (
-        EXISTS (
-            SELECT 1 FROM public.profiles 
-            WHERE id = auth.uid() AND role = 'admin'
-        )
-    );
+    FOR INSERT WITH CHECK (public.is_admin());
 
 CREATE POLICY "Admins can update products" ON public.products
-    FOR UPDATE USING (
-        EXISTS (
-            SELECT 1 FROM public.profiles 
-            WHERE id = auth.uid() AND role = 'admin'
-        )
-    );
+    FOR UPDATE USING (public.is_admin());
 
 CREATE POLICY "Admins can delete products" ON public.products
-    FOR DELETE USING (
-        EXISTS (
-            SELECT 1 FROM public.profiles 
-            WHERE id = auth.uid() AND role = 'admin'
-        )
-    );
+    FOR DELETE USING (public.is_admin());
 
 -- Indexes
 CREATE INDEX idx_products_is_active ON public.products(is_active);

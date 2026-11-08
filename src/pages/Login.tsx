@@ -11,14 +11,14 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { cn } from '@/utils/format'
 
 export function Login() {
-  const { signIn } = useAuth()
+  const { signIn, refreshProfile, profile } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  const from = (location.state as { from?: Location })?.from?.pathname || '/dashboard'
+  const from = (location.state as { from?: Location })?.from?.pathname
 
   const {
     register,
@@ -40,7 +40,16 @@ export function Login() {
     if (error) {
       setError(error.message)
     } else {
-      navigate(from, { replace: true })
+      // Refresh profile to get latest role
+      const updatedProfile = await refreshProfile()
+      
+      // Determine redirect based on role
+      let redirectPath = from || '/dashboard'
+      // If no explicit redirect (from state), check if user is admin
+      if (!from && updatedProfile?.role === 'admin') {
+        redirectPath = '/admin'
+      }
+      navigate(redirectPath, { replace: true })
     }
   }
 

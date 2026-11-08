@@ -12,7 +12,7 @@ interface AuthContextType {
   signOut: () => Promise<void>
   resetPassword: (email: string) => Promise<{ error: Error | null }>
   isAdmin: boolean
-  refreshProfile: () => Promise<void>
+  refreshProfile: () => Promise<Profile | null>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -37,10 +37,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const refreshProfile = async () => {
+  const refreshProfile = async (): Promise<Profile | null> => {
     if (user) {
-      await fetchProfile(user.id)
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single()
+
+      if (error) {
+        console.error('Error fetching profile:', error)
+        setProfile(null)
+        return null
+      } else {
+        setProfile(data)
+        return data
+      }
     }
+    return null
   }
 
   useEffect(() => {

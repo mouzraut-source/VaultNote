@@ -25,20 +25,10 @@ CREATE POLICY "Users can insert own submissions" ON public.payment_submissions
     FOR INSERT WITH CHECK (auth.uid() = user_id);
 
 CREATE POLICY "Admins can view all submissions" ON public.payment_submissions
-    FOR SELECT USING (
-        EXISTS (
-            SELECT 1 FROM public.profiles 
-            WHERE id = auth.uid() AND role = 'admin'
-        )
-    );
+    FOR SELECT USING (public.is_admin());
 
 CREATE POLICY "Admins can update submissions" ON public.payment_submissions
-    FOR UPDATE USING (
-        EXISTS (
-            SELECT 1 FROM public.profiles 
-            WHERE id = auth.uid() AND role = 'admin'
-        )
-    );
+    FOR UPDATE USING (public.is_admin());
 
 -- Indexes
 CREATE INDEX idx_payment_submissions_user_id ON public.payment_submissions(user_id);

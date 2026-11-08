@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Mail, Lock, User, Eye, EyeOff, ArrowLeft } from 'lucide-react'
+import { Mail, Lock, User, Eye, EyeOff, Check } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { registerSchema, type RegisterInput } from '@/utils/validation'
 import { Button } from '@/components/Button'
@@ -10,7 +10,7 @@ import { Input } from '@/components/Input'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/Card'
 
 export function Register() {
-  const { signUp } = useAuth()
+  const { signUp, refreshProfile } = useAuth()
   const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -42,7 +42,15 @@ export function Register() {
     if (error) {
       setError(error.message)
     } else {
-      navigate('/dashboard', { replace: true })
+      // Refresh profile to get latest role
+      const updatedProfile = await refreshProfile()
+      
+      // Determine redirect based on role (new users are students by default)
+      let redirectPath = '/dashboard'
+      if (updatedProfile?.role === 'admin') {
+        redirectPath = '/admin'
+      }
+      navigate(redirectPath, { replace: true })
     }
   }
 
@@ -128,6 +136,29 @@ export function Register() {
               >
                 {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
+            </div>
+
+            <div className="space-y-3">
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary focus:ring-2"
+                  {...register('acceptTerms')}
+                />
+                <div className="text-sm text-gray-600">
+                  I agree to the{' '}
+                  <Link to="/terms" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+                    Terms of Service
+                  </Link>
+                  {' '}and{' '}
+                  <Link to="/privacy" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+                    Privacy Policy
+                  </Link>
+                </div>
+              </label>
+              {errors.acceptTerms && (
+                <p className="text-sm text-red-600" role="alert">{errors.acceptTerms.message}</p>
+              )}
             </div>
 
             <Button type="submit" className="w-full" loading={loading}>

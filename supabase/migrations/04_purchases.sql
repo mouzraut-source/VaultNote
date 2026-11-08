@@ -18,28 +18,13 @@ CREATE POLICY "Users can view own purchases" ON public.purchases
     FOR SELECT USING (auth.uid() = user_id);
 
 CREATE POLICY "Admins can view all purchases" ON public.purchases
-    FOR SELECT USING (
-        EXISTS (
-            SELECT 1 FROM public.profiles 
-            WHERE id = auth.uid() AND role = 'admin'
-        )
-    );
+    FOR SELECT USING (public.is_admin());
 
 CREATE POLICY "Admins can insert purchases" ON public.purchases
-    FOR INSERT WITH CHECK (
-        EXISTS (
-            SELECT 1 FROM public.profiles 
-            WHERE id = auth.uid() AND role = 'admin'
-        )
-    );
+    FOR INSERT WITH CHECK (public.is_admin());
 
 CREATE POLICY "Admins can update purchases" ON public.purchases
-    FOR UPDATE USING (
-        EXISTS (
-            SELECT 1 FROM public.profiles 
-            WHERE id = auth.uid() AND role = 'admin'
-        )
-    );
+    FOR UPDATE USING (public.is_admin());
 
 -- Unique constraint: prevent duplicate active purchases for same user/product
 CREATE UNIQUE INDEX idx_unique_active_purchase 

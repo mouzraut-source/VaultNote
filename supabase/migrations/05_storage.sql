@@ -14,32 +14,23 @@
 CREATE POLICY "Admins can upload academic materials" ON storage.objects
     FOR INSERT WITH CHECK (
         bucket_id = 'academic-materials' AND
-        EXISTS (
-            SELECT 1 FROM public.profiles 
-            WHERE id = auth.uid() AND role = 'admin'
-        )
+        public.is_admin()
     );
 
 CREATE POLICY "Admins can update academic materials" ON storage.objects
     FOR UPDATE USING (
         bucket_id = 'academic-materials' AND
-        EXISTS (
-            SELECT 1 FROM public.profiles 
-            WHERE id = auth.uid() AND role = 'admin'
-        )
+        public.is_admin()
     );
 
 CREATE POLICY "Admins can delete academic materials" ON storage.objects
     FOR DELETE USING (
         bucket_id = 'academic-materials' AND
-        EXISTS (
-            SELECT 1 FROM public.profiles 
-            WHERE id = auth.uid() AND role = 'admin'
-        )
+        public.is_admin()
     );
 
--- 2. Students can download via signed URLs only (no direct policy needed)
--- Access controlled via application logic
+-- CRITICAL: NO SELECT POLICY for academic-materials
+-- Students CANNOT download directly - only via signed URLs from backend
 
 -- Policies for payment-proofs bucket:
 -- 1. Students can upload their own proofs
@@ -60,9 +51,6 @@ CREATE POLICY "Users can view own payment proofs" ON storage.objects
 CREATE POLICY "Admins can view all payment proofs" ON storage.objects
     FOR SELECT USING (
         bucket_id = 'payment-proofs' AND
-        EXISTS (
-            SELECT 1 FROM public.profiles 
-            WHERE id = auth.uid() AND role = 'admin'
-        )
+        public.is_admin()
     );
 */

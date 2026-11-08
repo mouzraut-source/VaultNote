@@ -36,6 +36,7 @@ export function ProductPage() {
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [uploadProgress, setUploadProgress] = useState(0)
 
   const hasActivePurchase = purchases?.some(p => p.product_id === id && p.status === 'active')
   const pendingSubmission = submissions?.find(s => s.product_id === id && s.status === 'pending')
@@ -60,12 +61,15 @@ export function ProductPage() {
     if (!user || !product) return
 
     setSubmitting(true)
+    setUploadProgress(0)
     setSubmitError(null)
 
     try {
       let screenshotPath: string | null = null
       if (data.screenshot) {
+        setUploadProgress(30)
         screenshotPath = await uploadPaymentProof(user.id, data.screenshot)
+        setUploadProgress(75)
       }
 
       await createPaymentSubmission.mutateAsync({
@@ -76,6 +80,7 @@ export function ProductPage() {
         screenshot_path: screenshotPath,
       })
 
+      setUploadProgress(100)
       setShowPaymentModal(false)
       setValue('transactionReference', '')
       setValue('screenshot', null)
@@ -84,6 +89,7 @@ export function ProductPage() {
       setSubmitError(err instanceof Error ? err.message : 'Failed to submit payment')
     } finally {
       setSubmitting(false)
+      setUploadProgress(0)
     }
   }
 
@@ -360,13 +366,27 @@ export function ProductPage() {
           </div>
 
           <div className="flex gap-3 pt-4">
-            <Button type="button" variant="outline" className="flex-1" onClick={() => setShowPaymentModal(false)}>
+            <Button type="button" variant="outline" className="flex-1" onClick={() => setShowPaymentModal(false)} disabled={submitting || createPaymentSubmission.isPending}>
               Cancel
             </Button>
             <Button type="submit" className="flex-1" loading={submitting || createPaymentSubmission.isPending}>
-              Submit for Review
+              {createPaymentSubmission.isPending ? 'Process...' : 'Submit for Review'}
             </Button>
           </div>
+
+          {submitting && (
+            <div className="mt-4 mb-2">
+              <div className="w-full bg-gray-200 rounded-full h-2.5">
+                <div 
+                  className="bg-primary h-2.5 rounded-full transition-all duration-300" 
+                  style={{ width: `${uploadProgress}%` }}
+                ></div>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                {uploadProgress === 100 ? 'Processing...' : uploadProgress === 0 ? 'Preparing...' : 'Uploading...'}
+              </p>
+            </div>
+          )}
         </form>
       </Modal>
     </div>

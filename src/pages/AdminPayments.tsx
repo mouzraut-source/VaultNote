@@ -9,9 +9,11 @@ import { Modal } from '@/components/Modal'
 import { formatCurrency, formatDateTime } from '@/utils/format'
 import { Search, Filter, Eye, CheckCircle, XCircle, Clock, Download } from 'lucide-react'
 import { cn } from '@/utils/format'
+import { useAuth } from '@/hooks/useAuth'
 import type { PaymentSubmission } from '@/types'
 
 export function AdminPayments() {
+  const { user } = useAuth()
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedSubmission, setSelectedSubmission] = useState<PaymentSubmission | null>(null)
@@ -43,10 +45,11 @@ export function AdminPayments() {
   }
 
   const handleApprove = async (submission: PaymentSubmission) => {
+    if (!user) return
     try {
       await approvePayment.mutateAsync({
         submissionId: submission.id,
-        adminId: 'current-admin-id', // In real app, get from auth context
+        adminId: user.id,
       })
       refetch()
     } catch (err) {
@@ -55,10 +58,11 @@ export function AdminPayments() {
   }
 
   const handleReject = async (submission: PaymentSubmission) => {
+    if (!user) return
     try {
       await rejectPayment.mutateAsync({
         submissionId: submission.id,
-        adminId: 'current-admin-id',
+        adminId: user.id,
       })
       refetch()
     } catch (err) {

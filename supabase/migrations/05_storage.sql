@@ -34,29 +34,22 @@ CREATE POLICY "Admins can delete academic materials" ON storage.objects
     );
 
 -- Storage policies for payment-proofs bucket
--- Users can upload their own proofs
+-- Users can upload their own proofs (path: {userId}/{timestamp}.ext)
 CREATE POLICY "Users can upload own payment proofs" ON storage.objects
     FOR INSERT TO authenticated WITH CHECK (
         bucket_id = 'payment-proofs' AND
-        auth.uid()::text = (storage.foldername(name))[1]
+        auth.uid()::text = (storage.foldername(name))[0]
     );
 
 -- Users can view their own proofs
 CREATE POLICY "Users can view own payment proofs" ON storage.objects
     FOR SELECT TO authenticated USING (
         bucket_id = 'payment-proofs' AND
-        auth.uid()::text = (storage.foldername(name))[1]
+        auth.uid()::text = (storage.foldername(name))[0]
     );
 
 -- Admins can view all proofs
-CREATE POLICY "Admins can view all payment proofs" ON storage.objects
-    FOR SELECT TO authenticated USING (
-        bucket_id = 'payment-proofs' AND
-        public.is_admin()
-    );
-
--- Admins can view all payment proofs (including those of other users)
-CREATE POLICY "Admins can view all payment proofs" ON storage.objects
+CREATE POLICY "Admins can view all payment proofs (SELECT)" ON storage.objects
     FOR SELECT TO authenticated USING (
         bucket_id = 'payment-proofs' AND
         public.is_admin()

@@ -30,6 +30,7 @@ export function AdminProducts() {
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [fileInputKey, setFileInputKey] = useState(0)
 
   const isEditMode = !!editingProduct
 
@@ -49,11 +50,10 @@ export function AdminProducts() {
     },
   })
 
-  const fileInputKey = 'file-input-' + Date.now()
-
   const openCreateModal = () => {
     setEditingProduct(null)
     setSelectedFile(null)
+    setFileInputKey(Date.now())
     reset({
       title: '',
       description: '',
@@ -67,6 +67,7 @@ export function AdminProducts() {
   const openEditModal = (product: Product) => {
     setEditingProduct(product)
     setSelectedFile(null)
+    setFileInputKey(Date.now())
     reset({
       title: product.title,
       description: product.description || '',
@@ -99,7 +100,7 @@ export function AdminProducts() {
         if (selectedFile) {
           setUploadProgress(30)
           storagePath = await uploadAcademicMaterial(editingProduct!.id, selectedFile)
-          setUploadProgress(60)
+          setUploadProgress(70)
         }
         await updateProduct.mutateAsync({
           id: editingProduct!.id,
@@ -127,7 +128,7 @@ export function AdminProducts() {
 
         if (selectedFile && newProduct?.id) {
           storagePath = await uploadAcademicMaterial(newProduct.id, selectedFile)
-          setUploadProgress(70)
+          setUploadProgress(75)
 
           await updateProduct.mutateAsync({
             id: newProduct.id,

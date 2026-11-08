@@ -1,4 +1,4 @@
-import { Outlet, Link, useLocation } from 'react-router-dom'
+import { Outlet, Link, useLocation, Navigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { LayoutDashboard, BookOpen, CreditCard, Users, ShoppingBag, LogOut, Menu, X } from 'lucide-react'
 import { useState } from 'react'
@@ -14,12 +14,20 @@ const adminNavItems = [
 ]
 
 export function AdminLayout() {
-  const { profile, signOut, isAdmin } = useAuth()
+  const { profile, signOut, isAdmin, loading } = useAuth()
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      </div>
+    )
+  }
+
   if (!isAdmin) {
-    return <Outlet />
+    return <Navigate to="/" state={{ from: location }} replace />
   }
 
   return (

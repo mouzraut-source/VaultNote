@@ -103,27 +103,42 @@ export function AdminProducts() {
         }
         await updateProduct.mutateAsync({
           id: editingProduct!.id,
-          input: { ...data, storage_path: storagePath || undefined },
+          input: { 
+            title: data.title,
+            description: data.description ?? null,
+            subject: data.subject ?? null,
+            price: data.price,
+            storage_path: storagePath || undefined,
+            is_active: data.isActive,
+          },
         })
         setUploadProgress(100)
       } else {
         const newProduct = await createProduct.mutateAsync({
-          ...data,
+          title: data.title,
+          description: data.description ?? null,
+          subject: data.subject ?? null,
+          price: data.price,
           storage_path: null,
+          is_active: data.isActive,
         })
 
         setUploadProgress(40)
 
         if (selectedFile && newProduct?.id) {
-          storagePath = await uploadAcademicMaterial(
-            `${data.title}-${Date.now()}`,
-            selectedFile
-          )
+          storagePath = await uploadAcademicMaterial(newProduct.id, selectedFile)
           setUploadProgress(70)
 
           await updateProduct.mutateAsync({
             id: newProduct.id,
-            input: { ...data, storage_path: storagePath, is_active: data.isActive },
+            input: { 
+              title: data.title,
+              description: data.description ?? null,
+              subject: data.subject ?? null,
+              price: data.price,
+              storage_path: storagePath,
+              is_active: data.isActive,
+            },
           })
           setUploadProgress(100)
         }

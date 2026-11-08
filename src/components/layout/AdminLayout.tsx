@@ -16,24 +16,20 @@ const adminNavItems = [
 ]
 
 export function AdminLayout() {
-  const { profile, signOut, isAdmin, loading } = useAuth()
+  const { profile, signOut, user, isAdmin, loading } = useAuth()
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <motion.div
-          className="h-8 w-8 border-b-2 border-primary rounded-full"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-        />
-      </div>
-    )
+    return null
+  }
+
+  if (!user) {
+    return <Navigate to="/login" state={{ from: location }} replace />
   }
 
   if (!isAdmin) {
-    return <Navigate to="/" state={{ from: location }} replace />
+    return <Navigate to="/dashboard" state={{ from: location }} replace />
   }
 
   return (

@@ -22,8 +22,8 @@ export function ProtectedRoute({ allowedRoles, redirectTo = '/login' }: Protecte
     return <Navigate to={redirectTo} state={{ from: location }} replace />
   }
 
-  if (allowedRoles && profile && !allowedRoles.includes(profile.role)) {
-    return <Navigate to="/" replace />
+  if (allowedRoles && (!profile || !allowedRoles.includes(profile.role))) {
+    return <Navigate to={redirectTo} replace />
   }
 
   return <Outlet />

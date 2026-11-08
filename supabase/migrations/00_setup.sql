@@ -160,7 +160,7 @@ CREATE POLICY "Admins can delete products" ON public.products
 
 DROP POLICY IF EXISTS "Users can view own purchases" ON public.purchases;
 CREATE POLICY "Users can view own purchases" ON public.purchases
-    FOR SELECT USING (auth.uid() = user_id);
+    FOR SELECT TO authenticated USING (auth.uid() = user_id);
 
 DROP POLICY IF EXISTS "Admins can view all purchases" ON public.purchases;
 CREATE POLICY "Admins can view all purchases" ON public.purchases
@@ -172,11 +172,23 @@ CREATE POLICY "Admins can view all purchases" ON public.purchases
 
 DROP POLICY IF EXISTS "Users can view own submissions" ON public.payment_submissions;
 CREATE POLICY "Users can view own submissions" ON public.payment_submissions
-    FOR SELECT USING (auth.uid() = user_id);
+    FOR SELECT TO authenticated USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can insert own submissions" ON public.payment_submissions;
+CREATE POLICY "Users can insert own submissions" ON public.payment_submissions
+    FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can update own submissions" ON public.payment_submissions;
+CREATE POLICY "Users can update own submissions" ON public.payment_submissions
+    FOR UPDATE TO authenticated USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
 DROP POLICY IF EXISTS "Admins can view all submissions" ON public.payment_submissions;
 CREATE POLICY "Admins can view all submissions" ON public.payment_submissions
     FOR SELECT TO authenticated USING (public.is_admin());
+
+DROP POLICY IF EXISTS "Admins can update submissions" ON public.payment_submissions;
+CREATE POLICY "Admins can update submissions" ON public.payment_submissions
+    FOR UPDATE TO authenticated USING (public.is_admin());
 
 -- ==========================================
 -- Storage trigger for profile creation

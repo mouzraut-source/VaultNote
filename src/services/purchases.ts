@@ -1,4 +1,4 @@
-import { supabase, getSupabaseAdmin } from './supabase'
+import { supabase } from './supabase'
 import type { Purchase } from '@/types'
 
 export async function getUserPurchases(userId: string): Promise<Purchase[]> {
@@ -17,8 +17,7 @@ export async function getUserPurchases(userId: string): Promise<Purchase[]> {
 }
 
 export async function getAllPurchasesForAdmin(): Promise<Purchase[]> {
-  const adminSupabase = getSupabaseAdmin()
-  const { data, error } = await adminSupabase
+  const { data, error } = await supabase
     .from('purchases')
     .select(`
       *,

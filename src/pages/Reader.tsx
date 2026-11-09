@@ -43,8 +43,9 @@ export function Reader() {
   }, [user, hasAccess, id, navigate])
 
   const loadPDF = async () => {
+    console.log('Loading PDF:', product?.product?.storage_path)
     if (!product?.product?.storage_path) {
-      setError('PDF file not found')
+      setError('PDF file not found - no storage_path')
       setLoading(false)
       return
     }
@@ -52,8 +53,10 @@ export function Reader() {
     try {
       setLoading(true)
       const url = await getSignedUrlForPDF(product.product.storage_path)
+      console.log('Got signed URL:', url)
       setPdfUrl(url)
-    } catch (err) {
+    } catch (err: any) {
+      console.error('PDF load error:', err)
       setError(err instanceof Error ? err.message : 'Failed to load PDF')
     } finally {
       setLoading(false)
@@ -67,7 +70,7 @@ export function Reader() {
       const pdfjs = await import('pdfjs-dist')
       pdfjsLib.current = pdfjs
       
-      pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`
+      pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@6.5.438/build/pdf.worker.min.js'
       
       try {
         const loadingTask = pdfjs.getDocument({ url: pdfUrl })
@@ -76,6 +79,7 @@ export function Reader() {
         setNumPages(doc.numPages)
         renderPage(1)
       } catch (err) {
+        console.error('PDF load error:', err)
         setError(err instanceof Error ? err.message : 'Failed to load PDF document')
       }
     }

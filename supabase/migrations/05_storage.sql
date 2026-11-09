@@ -33,6 +33,12 @@ CREATE POLICY "Admins can delete academic materials" ON storage.objects
         public.is_admin()
     );
 
+-- Users can view academic materials (signed URL generation requires SELECT)
+CREATE POLICY "Authenticated users can view academic materials" ON storage.objects
+    FOR SELECT TO authenticated USING (
+        bucket_id = 'academic-materials'
+    );
+
 -- Storage policies for payment-proofs bucket
 -- Users can upload their own proofs (path: {userId}/{timestamp}.ext)
 CREATE POLICY "Users can upload own payment proofs" ON storage.objects

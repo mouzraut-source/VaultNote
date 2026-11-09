@@ -5,11 +5,18 @@ import type { Purchase } from '@/types'
 
 export function usePurchases() {
   const { user } = useAuth()
-  return useQuery({
+  const query = useQuery({
     queryKey: ['purchases', user?.id],
     queryFn: () => getUserPurchases(user!.id),
     enabled: !!user,
   })
+  return {
+    data: query.data ?? [],
+    isLoading: query.isLoading,
+    isError: query.isError,
+    error: query.error,
+    refetch: query.refetch,
+  }
 }
 
 export function useAdminPurchases() {

@@ -11,8 +11,8 @@ import { cn } from '@/utils/format'
 
 export function Dashboard() {
   const { profile, refreshProfile } = useAuth()
-  const { data: purchases, isLoading: purchasesLoading, refetch: refetchPurchases } = usePurchases()
-  const { data: submissions, isLoading: submissionsLoading, refetch: refetchSubmissions } = usePaymentSubmissions()
+  const { data: purchases, isLoading: purchasesLoading, isError: purchasesError, refetch: refetchPurchases } = usePurchases()
+  const { data: submissions, isLoading: submissionsLoading, isError: submissionsError, refetch: refetchSubmissions } = usePaymentSubmissions()
 
   const activePurchases = purchases?.filter(p => p.status === 'active') || []
   const pendingSubmissions = submissions?.filter(s => s.status === 'pending') || []
@@ -23,6 +23,30 @@ export function Dashboard() {
     refreshProfile()
     refetchPurchases()
     refetchSubmissions()
+  }
+
+  if (purchasesLoading || submissionsLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+      </div>
+    )
+  }
+
+  if (purchasesError || submissionsError) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Failed to load data. Please try again.</p>
+          <button 
+            onClick={handleRefresh}
+            className="px-4 py-2 bg-primary text-white rounded-lg"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (

@@ -1,4 +1,4 @@
-import { supabase } from './supabase'
+import { supabase, getSupabaseAdmin } from './supabase'
 import type { PaymentSubmission } from '@/types'
 
 export interface CreatePaymentSubmissionInput {
@@ -42,7 +42,8 @@ export async function getUserPaymentSubmissions(userId: string): Promise<Payment
 export async function getAllPaymentSubmissionsForAdmin(
   status?: 'pending' | 'approved' | 'rejected'
 ): Promise<PaymentSubmission[]> {
-  let query = supabase
+  const adminSupabase = getSupabaseAdmin()
+  let query = adminSupabase
     .from('payment_submissions')
     .select(`
       *,

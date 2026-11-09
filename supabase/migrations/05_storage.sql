@@ -38,19 +38,43 @@ CREATE POLICY "Admins can delete academic materials" ON storage.objects
 CREATE POLICY "Users can upload own payment proofs" ON storage.objects
     FOR INSERT TO authenticated WITH CHECK (
         bucket_id = 'payment-proofs' AND
-        auth.uid()::text = (storage.foldername(name))[0]
+        auth.uid()::text = split_part(name, '/', 1)
     );
 
 -- Users can view their own proofs
 CREATE POLICY "Users can view own payment proofs" ON storage.objects
     FOR SELECT TO authenticated USING (
         bucket_id = 'payment-proofs' AND
-        auth.uid()::text = (storage.foldername(name))[0]
+        auth.uid()::text = split_part(name, '/', 1)
     );
 
 -- Admins can view all proofs
 CREATE POLICY "Admins can view all payment proofs (SELECT)" ON storage.objects
     FOR SELECT TO authenticated USING (
+        bucket_id = 'payment-proofs' AND
+        public.is_admin()
+    );
+
+-- Admins can upload payment proofs (for moderation/replacement)
+CREATE POLICY "Admins can upload payment proofs" ON storage.objects
+    FOR INSERT TO authenticated WITH CHECK (
+        bucket_id = 'payment-proofs' AND
+        public.is_admin()
+    );
+
+-- Admins can update payment proofs
+CREATE POLICY "Admins can update payment proofs" ON storage.objects
+    FOR UPDATE TO authenticated USING (
+        bucket_id = 'payment-proofs' AND
+        public.is_admin()
+    ) WITH CHECK (
+        bucket_id = 'payment-proofs' AND
+        public.is_admin()
+    );
+
+-- Admins can delete payment proofs
+CREATE POLICY "Admins can delete payment proofs" ON storage.objects
+    FOR DELETE TO authenticated USING (
         bucket_id = 'payment-proofs' AND
         public.is_admin()
     );

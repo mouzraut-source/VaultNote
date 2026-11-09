@@ -14,9 +14,20 @@ export function usePaymentSubmissions() {
 }
 
 export function useAdminPaymentSubmissions(status?: 'pending' | 'approved' | 'rejected') {
+  const { user } = useAuth()
   return useQuery({
     queryKey: ['admin', 'payment-submissions', status],
-    queryFn: () => getAllPaymentSubmissionsForAdmin(status),
+    queryFn: async () => {
+      try {
+        const result = await getAllPaymentSubmissionsForAdmin(status)
+        console.log('Admin payments loaded:', result)
+        return result
+      } catch (err) {
+        console.error('Error fetching admin payment submissions:', err)
+        throw err
+      }
+    },
+    enabled: !!user,
   })
 }
 

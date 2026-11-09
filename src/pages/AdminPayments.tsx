@@ -19,7 +19,7 @@ export function AdminPayments() {
   const [selectedSubmission, setSelectedSubmission] = useState<PaymentSubmission | null>(null)
   const [screenshotUrl, setScreenshotUrl] = useState<string | undefined>(undefined)
 
-  const { data: submissions, isLoading, refetch } = useAdminPaymentSubmissions(
+  const { data: submissions, isLoading, error, refetch } = useAdminPaymentSubmissions(
     statusFilter === 'all' ? undefined : statusFilter
   )
   const approvePayment = useApprovePaymentSubmission()
@@ -144,7 +144,20 @@ export function AdminPayments() {
           </div>
         </div>
 
-        {filteredSubmissions.length === 0 ? (
+        {isLoading ? (
+          <div className="text-center py-12">
+            <Clock className="mx-auto h-12 w-12 text-gray-300" />
+            <h3 className="mt-2 text-lg font-medium text-gray-900">Loading payment submissions</h3>
+            <p className="mt-1 text-gray-500">Please wait...</p>
+          </div>
+        ) : error ? (
+          <div className="text-center py-12 p-4">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <p className="text-red-600 mb-2">Error loading payment submissions</p>
+              <p className="text-sm text-gray-600">{error instanceof Error ? error.message : 'Unknown error'}</p>
+            </div>
+          </div>
+        ) : filteredSubmissions.length === 0 ? (
           <div className="text-center py-12">
             <Clock className="mx-auto h-12 w-12 text-gray-300" />
             <h3 className="mt-2 text-lg font-medium text-gray-900">No payment submissions found</h3>

@@ -70,10 +70,11 @@ export function Reader() {
       const pdfjs = await import('pdfjs-dist')
       pdfjsLib.current = pdfjs
       
-      pdfjs.GlobalWorkerOptions.workerSrc = null
+      // Use local worker to avoid CDN issues
+      pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs'
       
       try {
-        const loadingTask = pdfjs.getDocument({ url: pdfUrl, disableWorker: true })
+        const loadingTask = pdfjs.getDocument({ url: pdfUrl })
         const doc = await loadingTask.promise
         pdfDoc.current = doc
         setNumPages(doc.numPages)

@@ -154,7 +154,10 @@ export function AdminPayments() {
           <div className="text-center py-12 p-4">
             <div className="bg-red-50 border border-red-200 rounded-lg p-4">
               <p className="text-red-600 mb-2">Error loading payment submissions</p>
-              <p className="text-sm text-gray-600">{error instanceof Error ? error.message : 'Unknown error'}</p>
+              <p className="text-sm text-gray-600">{(error as any)?.message || String(error)}</p>
+              <p className="text-xs text-gray-500 mt-1">
+                Check console for details
+              </p>
             </div>
           </div>
         ) : filteredSubmissions.length === 0 ? (

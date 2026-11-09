@@ -22,8 +22,8 @@ export async function getAllPurchasesForAdmin(): Promise<Purchase[]> {
     .select(`
       *,
       product:products(*),
-      profile:profiles(*),
-      payment_submission:payment_submissions(*)
+      profile:profiles!user_id(*),
+      payment_submission:payment_submissions!payment_submission_id(*)
     `)
     .order('purchased_at', { ascending: false })
 

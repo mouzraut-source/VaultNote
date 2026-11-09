@@ -47,7 +47,7 @@ export async function getAllPaymentSubmissionsForAdmin(
     .select(`
       *,
       product:products(*),
-      profile:profiles(*)
+      profile:profiles!user_id(*)
     `)
     .order('created_at', { ascending: false })
 
@@ -107,7 +107,7 @@ export async function getPaymentSubmissionById(
     .select(`
       *,
       product:products(*),
-      profile:profiles(*)
+      profile:profiles!user_id(*)
     `)
     .eq('id', id)
     .single()

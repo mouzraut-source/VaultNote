@@ -101,13 +101,16 @@ export function Reader() {
     try {
       const page = await pdfDoc.current.getPage(num)
       const viewport = page.getViewport({ scale })
-      
+
       const canvas = canvasRef.current
       const context = canvas.getContext('2d')
       if (!context) return
 
       canvas.width = viewport.width
       canvas.height = viewport.height
+
+      context.imageSmoothingEnabled = true
+      context.imageSmoothingQuality = 'high'
 
       const renderContext = {
         canvasContext: context,

@@ -106,8 +106,11 @@ export function Reader() {
       const context = canvas.getContext('2d')
       if (!context) return
 
-      canvas.width = viewport.width
-      canvas.height = viewport.height
+      const dpr = window.devicePixelRatio || 1
+      canvas.width = viewport.width * dpr
+      canvas.height = viewport.height * dpr
+      canvas.style.width = `${viewport.width}px`
+      canvas.style.height = `${viewport.height}px`
 
       context.imageSmoothingEnabled = true
       context.imageSmoothingQuality = 'high'
